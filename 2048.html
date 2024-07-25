@@ -1,276 +1,354 @@
-<!DOCTYPE html>
-<html>
 <head>
-<meta charset="utf-8">
-<title>2048.html-mcr130102小游戏</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=360px,user-scalable=no" />
+    <title>2048.html-mcr130102小游戏</title>
+    <style>
+        body,h1,div,table,tr,td{
+            margin: 0px;
+            padding: 0px;
+        }
+        body{
+            background-color: rgb(0,0,0);
+        }
+        h1{
+            margin: 36px auto;
+            text-align: center;
+            color: rgba(255,255,255,0.7);
+            font-family: "楷体";
+            font-size: 48px;
+            text-shadow: 1px 2px 3px rgb(134,134,134);
+        }
+        div{
+            margin: 12px auto;
+            line-height: 60px;
+        }
+        #box{
+            margin-top: -24px;
+            width: 240px;
+            height: 60px;
+            text-align: center;
+            font-weight: bold;
+            color: rgb(255,255,255);
+        }
+        #box input{
+            border: 3px solid rgb(255,255,255);
+            border-radius: 4px;
+            box-shadow: 1px 2px 3px rgb(234,234,234);
+        }
+        #box input:focus{
+            outline-style: none;
+        }
+        table{
+            margin: 24px auto;
+            border: 3px solid rgb(255,255,255);
+            border-radius: 6px;
+        }
+        #random,td{
+            width: 60px;
+            height: 60px;
+            border: 2px solid rgb(255,255,255);
+            border-radius: 18px;
+            text-align: center;
+            font-weight: bold;
+            color: rgb(255,255,255);
+        }
+        td:hover{
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
+    <h1>2 0 4 8</h1>
+<!-- 显示得分及新游戏按钮 -->
+<div id="box">
+    得分: <span id="span">0</span>
+             
+    <input id="but" type="button" value="新游戏" />
+</div>
+<!-- 显示随机数 -->
+<div id="random"></div>
+<!-- 游戏主要布局 -->
+<table border="3px">
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+</table>
+</body>
 <script type="text/javascript">
-    var can_up = true;        //可向上移动
-    var can_down = true;    //可向下移动
-    var can_left = true;    //可向左移动
-    var can_right = true;    //可向右移动
-    //游戏结束
-    function game_over() {
-        if(!can_up&&!can_down&&!can_left&&!can_right) {
-            document.getElementById("game_over").style.visibility = "visible";
-        }
-    }
-    //开始新游戏
-    function new_game() {
-        document.getElementById("game_over").style.visibility = "hidden";
-        for(var i = 1;i < 5;i++) {
-            for(var j = 1;j < 5;j++) {
-                document.getElementById("s"+i+j).innerHTML = "";
+    var span = document.getElementById("span");
+    var but = document.getElementById("but");
+    var td = document.getElementsByTagName("td");
+    //定义得分
+    var score = 0;
+    //定义随机数
+    var random = document.getElementById("random");
+    var showNums = [2,4,8,16,32,64,128,256,512,1024];
+    var showNum = 0;
+    //定义背景色数组
+    var colors = ["rgb(255, 169, 182)","rgb(108, 251, 104)","rgb(255, 150, 46)","rgb(255, 121, 46)","rgb(255, 217, 46)",
+                "rgb(46, 200, 255)","rgb(46, 113, 255)","rgb(240, 46, 255)","rgb(46, 255, 175)","rgb(153, 134, 255)"];
+    //初始化程序,生成随机数
+    /* start */
+    function init(){
+        var max = maxNum();
+        var num = 0;
+        for(var i=4;i > 0;i++){
+            if(max < Math.pow(2,i+1)){
+                num = parseInt(Math.random()*i);
+                break;
+            }else if(max < 2048){
+                continue;
+            }else{
+                num = parseInt(Math.random()*showNums.length);
+                break;
             }
         }
-        born();
-        can_up = false;
-        can_down = false;
-        can_left = false;
-        can_right = false;
+        random.innerHTML = showNums[num];
+        color(random);
+        showNum = showNums[num];
     }
-    //键盘监听
-    document.onkeydown = function(event) {
-        switch(event.keyCode) {
-            case 37: left();break;
-            case 38: up();break;
-            case 39: right();break;
-            case 40: down();break;
-            default: ;
+    init();
+    /* end */
+     
+    //获取棋盘中的最大值
+    /* start */
+    function maxNum(){
+        var max = 0;
+        for(var i=0;i<td.length;i++){
+            if(td[i].innerHTML == ""){
+                max = max;
+            }else{
+                if(parseInt(td[i].innerHTML) > max){
+                    max = parseInt(td[i].innerHTML);
+                }else{
+                    max = max;
+                }
+            }
         }
+        return max;
     }
-    //生成新数字2或者4
-    function born() {
-        var rand_num = Math.random();
-        var new_num = (rand_num>0.5)?2:4;
-        while(true) {
-            var row = Math.ceil(Math.random()*4);
-            var col = Math.ceil(Math.random()*4);
-            var square = document.getElementById("s"+row+col);
-            if(square.innerHTML =="") {
-                square.innerHTML = new_num;
+    /* end */
+     
+    //根据数字显示背景颜色
+    /* start */
+    function color(obj){
+        for(var i=0;i < colors.length;i++){
+            if(obj.innerHTML == Math.pow(2,i+1)){
+                obj.style = "background-color: "+colors[i]+";";
                 break;
             }
         }
     }
-    //向上移动
-    function up() {
-        var new_square_num = [];
-        var target_square ;
-        var target_exist= false;
-        for(var i =1;i < 5;i++) {
-            for(var j = 2;j < 5;j++) {
-                var self_square = document.getElementById("s"+j+i);
-                if(self_square.innerHTML!="") {
-                    for(var k =1;k < j;k++) {
-                        var pre_square = document.getElementById("s"+(j-k)+i);
-                        if(pre_square.innerHTML=="") {
-                            target_square = pre_square ;
-                            target_exist = true;
-                        }
-                        else if(self_square.innerHTML == pre_square.innerHTML && new_square_num[+((j-k).toString()+i)]==undefined ){
-                            pre_square.innerHTML = 2*self_square.innerHTML;
-                            document.getElementById("score").innerHTML = +(document.getElementById("score").innerHTML) + (+pre_square.innerHTML);
-                            self_square.innerHTML = "";
-                            new_square_num[+((j-k).toString()+i)] = 1;
-                            can_up = true;
-                        }
-                        else {
-                            break;
-                        }
-                    }
-                    if(target_exist) {
-                        target_square.innerHTML = self_square.innerHTML;
-                        self_square.innerHTML = "";
-                        can_up = true;
-                        target_exist = false;
-                    }
-                }
+    /* end */
+     
+    //合并算法
+    /* start */
+    function offsetTop(obj,index){//合并上
+        if(index > 3){
+            if(td[(index-4)].innerHTML == obj.innerHTML){
+                td[(index-4)].innerHTML = "";
+                td[(index-4)].style = "background-color: rgba(0, 0, 0, 0);";
+                return true;
             }
-            new_square_num = [];
         }
-        if(can_up) {
-            born();
-            can_up = false;
-        }
-
+        return false;
     }
-    //向下移动
-    function down() {
-        var new_square_num = [];
-        var target_square ;
-        var target_exist= false;
-        for(var i =1;i < 5;i++) {
-            for(var j = 3;j > 0;j--) {
-                var self_square = document.getElementById("s"+j+i);
-                if(self_square.innerHTML!="") {
-                    for(var k =j+1;k < 5;k++) {
-                        var pre_square = document.getElementById("s"+k+i);
-                        if(pre_square.innerHTML=="") {
-                            target_square = pre_square ;
-                            target_exist = true;
-                        }
-                        else if(self_square.innerHTML == pre_square.innerHTML && new_square_num[+((k).toString()+i)]==undefined ){
-                            pre_square.innerHTML = 2*self_square.innerHTML;
-                            document.getElementById("score").innerHTML = +(document.getElementById("score").innerHTML) + (+pre_square.innerHTML);
-                            self_square.innerHTML = "";
-                            new_square_num[+((k).toString()+i)] = 1;
-                            can_down = true;
-                            target_exist = false;
-                        }
-                        else {
-                            break;
-                        }
-                    }
-                    if(target_exist) {
-                        target_square.innerHTML = self_square.innerHTML;
-                        self_square.innerHTML = "";
-                        can_down = true;
-                        target_exist = false;
-                    }
-                }
+    function offsetBottom(obj,index){//合并下
+        if(index < 12){
+            if(td[(index+4)].innerHTML == obj.innerHTML){
+                td[(index+4)].innerHTML = "";
+                td[(index+4)].style = "background-color: rgba(0, 0, 0, 0);";
+                return true;
             }
-            new_square_num = [];
         }
-        if(can_down) {
-            born();
-            can_down = false;
-        }
+        return false;
     }
-    //向左移动
-    function left() {
-        var new_square_num = [];
-        var target_square ;
-        var target_exist= false;
-        for(var j =1;j < 5;j++) {
-            for(var i = 2;i < 5;i++) {
-                var self_square = document.getElementById("s"+j+i);
-                if(self_square.innerHTML!="") {
-                    for(var k =1;k < i;k++) {
-                        var pre_square = document.getElementById("s"+j+(i-k));
-                        if(pre_square.innerHTML=="") {
-                            target_square = pre_square ;
-                            target_exist = true;
-                        }
-                        else if(self_square.innerHTML == pre_square.innerHTML && new_square_num[+(j+(i-k).toString())]==undefined ){
-                            pre_square.innerHTML = 2*self_square.innerHTML;
-                            document.getElementById("score").innerHTML = +(document.getElementById("score").innerHTML) + (+pre_square.innerHTML);
-                            self_square.innerHTML = "";
-                            new_square_num[+(j+(i-k).toString())] = 1;
-                            can_left = true;
-                            target_exist = false;
-                        }
-                        else {
-                            break;
-                        }
-                    }
-                    if(target_exist) {
-                        target_square.innerHTML = self_square.innerHTML;
-                        self_square.innerHTML = "";
-                        can_left = true;
-                        target_exist = false;
-                    }
-                }
+    function offsetLeft(obj,index){//合并左
+        if(index!=0 && index!=4 && index!=8 && index!=12){
+            if(td[(index-1)].innerHTML == obj.innerHTML){
+                td[(index-1)].innerHTML = "";
+                td[(index-1)].style = "background-color: rgba(0, 0, 0, 0);";
+                    return true;
             }
-            new_square_num = [];
         }
-        if(can_left) {
-            born();
-            can_left = false;
-        }
+        return false;
     }
-    //向右移动
-    function right() {
-        var new_square_num = [];
-        var target_square ;
-        var target_exist= false;
-        for(var j =1;j < 5;j++) {
-            for(var i = 3;i > 0;i--) {
-                var self_square = document.getElementById("s"+j+i);
-                if(self_square.innerHTML!="") {
-                    for(var k =i+1;k < 5;k++) {
-                        var pre_square = document.getElementById("s"+j+k);
-                        if(pre_square.innerHTML=="") {
-                            target_square = pre_square ;
-                            target_exist = true;
-                        }
-                        else if(self_square.innerHTML == pre_square.innerHTML && new_square_num[+(j.toString()+k)]==undefined ){
-                            pre_square.innerHTML = 2*self_square.innerHTML;
-                            document.getElementById("score").innerHTML = +(document.getElementById("score").innerHTML) + (+pre_square.innerHTML);
-                            self_square.innerHTML = "";
-                            new_square_num[+(j.toString()+k)] = 1;
-                            can_right = true;
-                            target_exist = false;
-                        }
-                        else {
-                            break;
-                        }
-                    }
-                    if(target_exist) {
-                        target_square.innerHTML = self_square.innerHTML;
-                        self_square.innerHTML = "";
-                        can_right = true;
-                        target_exist = false;
-                    }
-                }
+    function offsetRight(obj,index){//合并右
+        if(index!=3 && index!=7 && index!=11 && index!=15){
+            if(td[(index+1)].innerHTML == obj.innerHTML){
+                td[(index+1)].innerHTML = "";
+                td[(index+1)].style = "background-color: rgba(0, 0, 0, 0);";
+                return true;
             }
-            new_square_num = [];
         }
-        if(can_right) {
-            born();
-            can_right = false;
+        return false;
+    }
+    /* end */
+     
+    //判断单元格是否合并
+    /* start */
+    function merge(obj,index){
+        if(offsetTop(obj,index)){
+            if(offsetBottom(obj,index)){
+                if(offsetLeft(obj,index)){
+                    if(offsetRight(obj,index)){
+                        obj.innerHTML = parseInt(obj.innerHTML)*2;//合并上、下、左、右
+                        score += 16;
+                        merge(obj,index);
+                    }else{
+                        obj.innerHTML = parseInt(obj.innerHTML)*2;//仅合并上、下、左
+                        score += 8;
+                        merge(obj,index);
+                    }
+                }else if(offsetRight(obj,index)){
+                    obj.innerHTML = parseInt(obj.innerHTML)*2;//仅合并上、下、右
+                    score += 8;
+                    merge(obj,index);
+                }else{
+                    obj.innerHTML = parseInt(obj.innerHTML)*2;//仅合并上、下
+                    score += 4;
+                    merge(obj,index);
+                }
+            }else if(offsetLeft(obj,index)){
+                if(offsetRight(obj,index)){
+                    obj.innerHTML = parseInt(obj.innerHTML)*2;//仅合并上、左、右
+                    score += 8;
+                    merge(obj,index);
+                }else{
+                    obj.innerHTML = parseInt(obj.innerHTML)*2;//仅合并上、左
+                    score += 4;
+                    merge(obj,index);
+                }
+            }else if(offsetRight(obj,index)){
+                obj.innerHTML = parseInt(obj.innerHTML)*2;//仅合并上、右
+                score += 4;
+                merge(obj,index);
+            }else{
+                obj.innerHTML = parseInt(obj.innerHTML)*2;//仅合并上
+                score += 2;
+                merge(obj,index);
+            }
+        }else if(offsetBottom(obj,index)){
+            if(offsetLeft(obj,index)){
+                if(offsetRight(obj,index)){
+                    obj.innerHTML = parseInt(obj.innerHTML)*2;//仅合并下、左、右
+                    score += 8;
+                    merge(obj,index);
+                }else{
+                    obj.innerHTML = parseInt(obj.innerHTML)*2;//仅合并下、左
+                    score += 4;
+                    merge(obj,index);
+                }
+            }else if(offsetRight(obj,index)){
+                obj.innerHTML = parseInt(obj.innerHTML)*2;//仅合并下、右
+                score += 4;
+                merge(obj,index);
+            }else{
+                obj.innerHTML = parseInt(obj.innerHTML)*2;//仅合并下
+                score += 2;
+                merge(obj,index);
+            }
+        }else if(offsetLeft(obj,index)){
+            if(offsetRight(obj,index)){
+                obj.innerHTML = parseInt(obj.innerHTML)*2;//仅合并左、右
+                score += 4;
+                merge(obj,index);
+            }else{
+                obj.innerHTML = parseInt(obj.innerHTML)*2;//仅合并左
+                score += 2;
+                merge(obj,index);
+            }
+        }else if(offsetRight(obj,index)){
+            obj.innerHTML = parseInt(obj.innerHTML)*2;//仅合并右
+            score += 2;
+            merge(obj,index);
         }
     }
-    //涂色
-    setInterval(function paint() {
-        for(var i = 1;i < 5;i++) {
-            for(var j = 1;j < 5;j++) {
-                var square = document.getElementById("s"+i+j);
-                switch(square.innerHTML) {
-                    case "2" :square.style.backgroundColor = "#EEE4DA";
-                            square.style.color = "#766D64";
-                            break;
-                    case "4" :square.style.backgroundColor = "#ECE0C8";
-                            square.style.color = "#786D67";
-                            break;
-                    case "8" :square.style.backgroundColor = "#F2B179";
-                            square.style.color = "#F6F7F2";
-                            break;
-                    case "16" :square.style.backgroundColor = "#F59565";
-                            square.style.color = "#FAF6F5";
-                            break;
-                    case "32" :square.style.backgroundColor = "#F77B5F";
-                            square.style.color = "#FBF3F0";
-                            break;
-                    case "64" :square.style.backgroundColor = "#F35F3B";
-                            square.style.color = "#FAF4F4";
-                            break;
-                    case "128" :square.style.backgroundColor = "#EDCE71";
-                            square.style.color = "#F8FAF7";
-                            break;
-                    case "256" :square.style.backgroundColor = "#EDCC61";
-                            square.style.color = "#FAF6F7";
-                            break;
-                    case "512" :square.style.backgroundColor = "#ECC850";
-                            square.style.color = "#FAF4F6";
-                            break;
-                    case "1024" :square.style.backgroundColor = "#EDC53F";
-                            square.style.color = "#F9F4FA";
-                            break;
-                    case "2048" :square.style.backgroundColor = "#E9B501";
-                            square.style.color = "#FFFCB0";
-                            break;
-                    case "4096" :square.style.backgroundColor = "#FCEDD8";
-                            square.style.color = "#524B39";
-                            break;
-                    default:square.style.backgroundColor = "#FBEFE3";
-                }
+    /* end */
+     
+    //main
+    /* start */
+    function gameOver(){
+        for(var i=0;i<td.length;i++){
+            if(td[i].innerHTML == ""){
+                break;
+            }
+            if(i == 15){
+                alert("很遗憾！本局游戏结束。。。");
             }
         }
-    },10);
-
+    }
+    /* end */
+     
+    //main
+    /* start */
+    (function(){
+        for(var i=0;i<td.length;i++){
+            var choose = td[i];
+            choose.index = i;
+            choose.onclick = function(){
+                if(this.innerHTML == ""){
+                    this.innerHTML = showNum;
+                    merge(this,this.index);
+                    if(this.innerHTML >= 2048){
+                        this.innerHTML = "";
+                        this.style = "background-color: rgba(0, 0, 0, 0);";
+                    }
+                    color(this);
+                    init();
+                }
+                updateScore();
+                gameOver();
+            }
+        }
+    })();
+    /* end */
+     
+    //更新得分
+    /* start */
+    function updateScore(){
+        if(score > 500){
+            span.style = "color: rgb(255,0,0)";
+        }else if(score > 100){
+            span.style = "color: rgb(255,0,255)";
+        }else if(score > 50){
+            span.style = "color: rgb(255,255,0)";
+        }else if(score > 20){
+            span.style = "color: rgb(0,0,255)";
+        }else if(score > 10){
+            span.style = "color: rgb(0,255,0)";
+        }
+        span.innerHTML = score;
+    }
+    /* end */
+     
+    //新游戏
+    /* start */
+    but.onclick = function(){
+        location.reload();
+    }
+    /* end */
+     
 </script>
-
-</body>
 </html>
