@@ -8,3 +8,4 @@
 * [up_and_down.html简化版飞翔的小鸟](/games/up_and_down.html)
 * [2048.html](/games/2048)
 * [plantsVSzombies.html](/plantsVSzombies)
+* [chess.html五子棋单机](/games/chess.html)
